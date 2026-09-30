@@ -30,7 +30,7 @@ WEEKDAYS = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
 # Text progress bars (the menu only carries text, no widgets). All glyphs come
 # from the Unicode "Block Elements" range, which shares one advance width in
 # common UI fonts, so bars line up from one row to the next.
-BAR_CELLS = 30
+BAR_CELLS = 40  # 2.5 % per cell, 520 px in Ubuntu Sans 13
 BAR_USED = "█"  # used, within the share of the window already elapsed
 BAR_AHEAD = "▌"  # used beyond the elapsed share: ahead of pace (striped)
 BAR_MARGIN = "░"  # elapsed but not used: the margin left
