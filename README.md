@@ -1,5 +1,7 @@
 # claude-usage-tray
 
+[![Tests](https://github.com/lzamouth/claude-usage-tray/actions/workflows/tests.yml/badge.svg)](https://github.com/lzamouth/claude-usage-tray/actions/workflows/tests.yml)
+
 **English** · [Français](README.fr.md)
 
 Linux systray indicator (GNOME / KDE) showing your claude.ai plan usage:
@@ -136,6 +138,9 @@ without browser headers, and a request made exactly like the applet:
 ```bash
 ./.venv/bin/python -m unittest discover -s tests -t .
 ```
+
+GitHub Actions runs the same tests on every push and pull request, along
+with a syntax check and the tab-indentation rule.
 
 See [CLAUDE.md](CLAUDE.md) for the architecture and code conventions.
 

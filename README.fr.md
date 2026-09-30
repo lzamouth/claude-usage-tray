@@ -1,5 +1,7 @@
 # claude-usage-tray
 
+[![Tests](https://github.com/lzamouth/claude-usage-tray/actions/workflows/tests.yml/badge.svg)](https://github.com/lzamouth/claude-usage-tray/actions/workflows/tests.yml)
+
 [English](README.md) · **Français**
 
 Indicateur systray Linux (GNOME / KDE) affichant l'utilisation de ton
@@ -145,6 +147,9 @@ l'applet :
 ```bash
 ./.venv/bin/python -m unittest discover -s tests -t .
 ```
+
+GitHub Actions lance les mêmes tests à chaque push et pull request, avec une
+vérification de syntaxe et de l'indentation par tabulations.
 
 Voir [CLAUDE.md](CLAUDE.md) pour l'architecture et les conventions de code.
 

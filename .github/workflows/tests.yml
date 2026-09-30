@@ -1,0 +1,37 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      # Same setup as on a user's machine: system Python with the
+      # distribution's PyGObject (it does not install cleanly through pip).
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends python3-gi python3-requests
+
+      - name: Indentation uses tabs
+        run: |
+          if grep -rnP '^ +\S' --include='*.py' claude_usage_tray tests diag_usage.py; then
+            echo "::error::Python files must be indented with tabs (see CLAUDE.md)"
+            exit 1
+          fi
+
+      - name: Syntax check
+        run: |
+          python3 -m compileall -q claude_usage_tray tests diag_usage.py
+          bash -n install.sh
+
+      - name: Unit tests
+        run: python3 -m unittest discover -s tests -t . -v

@@ -27,6 +27,8 @@ claude_usage_tray/
 packaging/*.in        autostart / systemd templates, filled by install.sh
 diag_usage.py         end-to-end diagnostic (cookie rows, Cloudflare, API)
 tests/                unittest, no network, no GTK
+.github/workflows/    CI: tabs check, syntax check, unit tests (system
+                      python3 + apt python3-gi, like users' machines)
 ```
 
 ## Rules
