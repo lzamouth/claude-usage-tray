@@ -23,10 +23,13 @@ TRACK_COLOR = "#8a8a8a"
 TICK_COLOR = "#f2f2f2"
 TICK_OUTLINE = "#303030"
 
+# Ring geometry, in icon pixels: 12 px inner diameter, 1 px margin outside.
 SIZE = 32
 CENTER = SIZE / 2
-RADIUS = 11.5
-RING_WIDTH = 5.0
+INNER_RADIUS = 6.0
+OUTER_RADIUS = 15.0
+RADIUS = (INNER_RADIUS + OUTER_RADIUS) / 2
+RING_WIDTH = OUTER_RADIUS - INNER_RADIUS
 
 
 def _point(fraction: float, radius: float) -> tuple[float, float]:
