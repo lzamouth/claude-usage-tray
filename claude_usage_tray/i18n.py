@@ -17,7 +17,7 @@ import os
 import sys
 
 SOURCE_LANGUAGE = "en"
-SUPPORTED_LANGUAGES = ("en", "fr", "de", "es", "it", "pt")
+SUPPORTED_LANGUAGES = ("en", "fr", "de", "es", "it", "nl", "pt")
 
 # POSIX locale variables, in gettext precedence order.
 LOCALE_VARIABLES = ("LANGUAGE", "LC_ALL", "LC_MESSAGES", "LANG")

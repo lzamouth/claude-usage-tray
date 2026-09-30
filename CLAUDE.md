@@ -14,7 +14,7 @@ claude_usage_tray/
 ├── cookie_reader.py  profiles.ini → cookies.sqlite → sessionKey
 ├── config.py         ~/.config/claude-usage-tray/config.toml
 ├── i18n.py           _(), set_language(), detect_language()
-└── locales/*.py      fr, de, es, it, pt catalogs (English is the source language)
+└── locales/*.py      fr, de, es, it, nl, pt catalogs (English is the source language)
 packaging/*.in        autostart / systemd templates, filled by install.sh
 diag_usage.py         end-to-end diagnostic (cookie rows, Cloudflare, API)
 tests/                unittest, no network, no GTK

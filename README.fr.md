@@ -17,7 +17,7 @@ abonnement claude.ai :
   l'approche de la limite.
 
 L'interface est disponible en **français, anglais, allemand, espagnol,
-italien et portugais** (voir [Langue](#langue)).
+italien, néerlandais et portugais** (voir [Langue](#langue)).
 
 > [!WARNING]
 > Cet outil repose sur l'**API interne non documentée** qu'appelle le site
@@ -83,7 +83,7 @@ Créée au premier lancement dans `~/.config/claude-usage-tray/config.toml` :
 ```toml
 poll_interval_seconds = 300   # intervalle de rafraîchissement
 firefox_profile = ""          # vide = profil Firefox par défaut
-language = ""                 # "en", "fr", "de", "es", "it", "pt", ou vide = langue du système
+language = ""                 # "en", "fr", "de", "es", "it", "nl", "pt", ou vide = langue du système
 ```
 
 ### Langue
@@ -91,8 +91,8 @@ language = ""                 # "en", "fr", "de", "es", "it", "pt", ou vide = la
 Avec `language = ""`, la langue suit les variables de locale habituelles
 (`LANGUAGE`, `LC_ALL`, `LC_MESSAGES`, `LANG`) ; une langue non prise en charge
 retombe sur l'anglais. Le portugais suit l'usage brésilien et sert aussi pour
-`pt_PT`. Les traductions allemande, espagnole, italienne et portugaise ont été
-écrites par Claude et n'ont pas encore été relues par des locuteurs natifs :
+`pt_PT`. Les traductions allemande, espagnole, italienne, néerlandaise et
+portugaise ont été écrites par Claude et n'ont pas encore été relues par des locuteurs natifs :
 les corrections sont bienvenues.
 
 Pour ajouter une langue : créer `claude_usage_tray/locales/<code>.py` (en
