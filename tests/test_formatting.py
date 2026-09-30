@@ -1,4 +1,4 @@
-"""Formatting tests: remaining time and reset labels."""
+"""Formatting tests: progress bars, remaining time and reset labels."""
 
 from __future__ import annotations
 
@@ -6,8 +6,8 @@ import unittest
 from datetime import datetime, timedelta, timezone
 
 from claude_usage_tray import i18n
-from claude_usage_tray.api_client import UsageWindow
-from claude_usage_tray.formatting import format_remaining, format_reset
+from claude_usage_tray.api_client import WEEK, UsageWindow
+from claude_usage_tray.formatting import format_bar, format_remaining, format_reset
 
 
 class FormatRemainingTest(unittest.TestCase):
@@ -31,6 +31,31 @@ class FormatRemainingTest(unittest.TestCase):
 		i18n.set_language("fr")
 		self.assertEqual("3 h 05", format_remaining(timedelta(hours=3, minutes=5)))
 		self.assertEqual("2 j 4 h", format_remaining(timedelta(days=2, hours=4)))
+
+
+class FormatBarTest(unittest.TestCase):
+	NOW = datetime(2026, 10, 1, 12, 0, tzinfo=timezone.utc)
+
+	def bar(self, utilization: float | None, elapsed: float | None) -> str | None:
+		resets_at = None if elapsed is None else self.NOW + WEEK * (1 - elapsed)
+		return format_bar(UsageWindow(utilization, resets_at), WEEK, self.NOW, cells=10)
+
+	def test_zones(self) -> None:
+		cases = [
+			(20.0, 0.5, "██░░░▁▁▁▁▁"),  # under pace: margin up to the elapsed share
+			(50.0, 0.2, "██▌▌▌▁▁▁▁▁"),  # ahead of pace: striped excess
+			(30.0, 0.3, "███▁▁▁▁▁▁▁"),  # exactly on pace
+			(0.0, 0.4, "░░░░▁▁▁▁▁▁"),
+			(120.0, 1.0, "██████████"),  # clamped to the bar
+			(40.0, None, "████▁▁▁▁▁▁"),  # unknown reset: plain usage bar
+		]
+		for utilization, elapsed, expected in cases:
+			with self.subTest(utilization=utilization, elapsed=elapsed):
+				self.assertEqual(expected, self.bar(utilization, elapsed))
+
+	def test_no_usage(self) -> None:
+		self.assertIsNone(self.bar(None, 0.5))
+		self.assertIsNone(format_bar(None, WEEK, self.NOW))
 
 
 class FormatResetTest(unittest.TestCase):

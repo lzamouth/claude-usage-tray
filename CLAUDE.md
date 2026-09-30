@@ -10,7 +10,8 @@ claude_usage_tray/
 ├── main.py           RefreshWorker (daemon thread, backoff, fast retry) + main()
 ├── tray.py           UsageTray (AppIndicator menu), open_login_page()
 ├── severity.py       icon policy: thresholds + pace alert (no GTK, tested)
-├── formatting.py     percent, pace, remaining time, reset labels (no GTK)
+├── formatting.py     percent, pace, text progress bars, remaining time,
+│                     reset labels (no GTK)
 ├── notifications.py  UsageWatcher (what to notify, tested) + DesktopNotifier
 │                     (org.freedesktop.Notifications over D-Bus)
 ├── system_events.py  refresh on resume (logind) and network up (Gio)
@@ -42,6 +43,10 @@ tests/                unittest, no network, no GTK
   `ApiError` → `needs_login=False`; signing in again would not help.
   `NetworkError` does not count towards the backoff (the server is not to
   blame; `SystemEventWatcher` refreshes when the network returns).
+- **Menu:** dbusmenu carries only text and icons, so progress bars are text
+  made of Unicode Block Elements (same advance width in UI fonts; avoid box
+  drawing characters, which are narrower). Never make items insensitive:
+  GNOME greys them out and they become hard to read.
 - **Icon:** driven by `severity.snapshot_severity()`, the worst of all
   windows. Keep thresholds in `severity.py`, not in the UI.
 - **Notifications:** decided by `UsageWatcher.update()` from successive

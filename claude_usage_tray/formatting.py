@@ -27,6 +27,15 @@ MODEL_ORDER = ["sonnet", "opus", "haiku", "fable"]
 # time rather than via strftime("%a"), which depends on the C locale.
 WEEKDAYS = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
 
+# Text progress bars (the menu only carries text, no widgets). All glyphs come
+# from the Unicode "Block Elements" range, which shares one advance width in
+# common UI fonts, so bars line up from one row to the next.
+BAR_CELLS = 30
+BAR_USED = "█"  # used, within the share of the window already elapsed
+BAR_AHEAD = "▌"  # used beyond the elapsed share: ahead of pace (striped)
+BAR_MARGIN = "░"  # elapsed but not used: the margin left
+BAR_REST = "▁"  # not elapsed yet
+
 
 def model_label(key: str) -> str:
 	return MODEL_LABELS.get(key, key.replace("_", " ").capitalize())
@@ -82,6 +91,36 @@ def format_weekly_pace(window: UsageWindow | None) -> str:
 	return _format_pace(
 		window, WEEK, timedelta(days=1), _("{percent} ({used} d / {elapsed} d elapsed)")
 	)
+
+
+def format_bar(
+	window: UsageWindow | None,
+	period: timedelta,
+	now: datetime | None = None,
+	cells: int = BAR_CELLS,
+) -> str | None:
+	"""Progress bar comparing usage with the time elapsed in the window.
+
+	Reads left to right: used within pace, used ahead of pace, margin
+	(elapsed but unused), then the rest of the window. None without usage.
+	"""
+	if window is None or window.utilization is None:
+		return None
+	used = round(min(100.0, max(0.0, window.utilization)) / 100 * cells)
+	elapsed_fraction = window.elapsed_fraction(period, now)
+	# Unknown reset time: plain usage bar, no pace information.
+	elapsed = used if elapsed_fraction is None else round(elapsed_fraction * cells)
+
+	def cell(index: int) -> str:
+		if index < min(used, elapsed):
+			return BAR_USED
+		if index < used:
+			return BAR_AHEAD
+		if index < elapsed:
+			return BAR_MARGIN
+		return BAR_REST
+
+	return "".join(cell(index) for index in range(cells))
 
 
 def format_remaining(remaining: timedelta) -> str:

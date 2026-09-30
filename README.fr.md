@@ -14,6 +14,10 @@ abonnement claude.ai :
   5 h, jours pour les fenêtres hebdomadaires), à côté du temps écoulé depuis
   le dernier reset, pour voir d'un coup d'œil si tu consommes plus vite ou
   moins vite que le temps : `7 jours : 16% (1,1 j / 1,3 j écoulés)` ;
+- chaque ligne est soulignée d'une **barre de progression** qui montre la
+  même chose visuellement : `█` consommé, `░` temps écoulé pas encore
+  consommé (ta marge), `▌` consommé en avance sur le rythme, `▁` reste de la
+  fenêtre. Un clic sur une ligne ouvre la page d'utilisation de claude.ai ;
 - l'icône reflète la **pire de toutes les fenêtres** (5 h, 7 jours, par
   modèle) : avertissement à 75 %, erreur à 90 %, et avertissement aussi
   quand tu consommes **plus vite que le temps** — au moins 25 % utilisés et

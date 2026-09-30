@@ -12,6 +12,10 @@ Linux systray indicator (GNOME / KDE) showing your claude.ai plan usage:
   for the weekly ones) next to the time elapsed since the last reset, so you
   can tell at a glance whether you are ahead of or behind the clock:
   `7 days: 16% (1.1 d / 1.3 d elapsed)`;
+- each row is underlined by a **progress bar** that shows the same thing
+  visually: `█` used, `░` time elapsed but not used yet (your margin), `▌`
+  used ahead of pace, `▁` rest of the window. Clicking a row opens the
+  claude.ai usage page;
 - the icon reflects the **worst of all windows** (5 hours, 7 days, per
   model): warning at 75 %, error at 90 %, and also warning when you are
   **ahead of pace** — at least 25 % used and 10 points more than the share of
