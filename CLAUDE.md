@@ -10,6 +10,9 @@ claude_usage_tray/
 ├── main.py           RefreshWorker (daemon thread, backoff, fast retry) + main()
 ├── tray.py           UsageTray (AppIndicator menu), open_login_page()
 ├── severity.py       icon policy: thresholds + pace alert (no GTK, tested)
+├── formatting.py     percent, pace, remaining time, reset labels (no GTK)
+├── notifications.py  UsageWatcher (what to notify, tested) + DesktopNotifier
+│                     (org.freedesktop.Notifications over D-Bus)
 ├── system_events.py  refresh on resume (logind) and network up (Gio)
 ├── api_client.py     ClaudeUsageClient, UsageSnapshot, UsageWindow;
 │                     errors: ApiError > AuthError, BlockedError, NetworkError
@@ -32,7 +35,7 @@ tests/                unittest, no network, no GTK
   config is loaded). Use `str.format` placeholders, never f-strings inside
   `_()`. Add the translation to every `locales/*.py` catalog;
   `tests/test_i18n.py` fails on missing/stale entries or placeholder
-  mismatches. Strings translated indirectly (like `tray.WEEKDAYS`) must be
+  mismatches. Strings translated indirectly (like `formatting.WEEKDAYS`) must be
   listed in `INDIRECT_TUPLES` in that test.
 - **Error semantics:** `AuthError` / `CookieError` → `needs_login=True` (the
   "Sign in again" menu item). `BlockedError` (Cloudflare challenge) and other
@@ -41,6 +44,10 @@ tests/                unittest, no network, no GTK
   blame; `SystemEventWatcher` refreshes when the network returns).
 - **Icon:** driven by `severity.snapshot_severity()`, the worst of all
   windows. Keep thresholds in `severity.py`, not in the UI.
+- **Notifications:** decided by `UsageWatcher.update()` from successive
+  snapshots. The first snapshot is a baseline (no notice on restart); a
+  reset is detected once the old `resets_at` has passed *and* the API has
+  moved to a new window.
 - **HTTP headers:** the `Sec-Fetch-*` headers are what gets past Cloudflare;
   without them every request gets `403` + `cf-mitigated: challenge`,
   regardless of User-Agent. Do not remove them.

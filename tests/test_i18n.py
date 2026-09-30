@@ -13,7 +13,7 @@ from claude_usage_tray import i18n
 PACKAGE_DIR = Path(__file__).resolve().parent.parent / "claude_usage_tray"
 
 # Tuples of strings translated indirectly (``_(NAME[i])``), per module.
-INDIRECT_TUPLES = {"tray.py": ("WEEKDAYS",)}
+INDIRECT_TUPLES = {"formatting.py": ("WEEKDAYS",)}
 
 
 def _source_messages() -> set[str]:

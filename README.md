@@ -6,7 +6,8 @@ Linux systray indicator (GNOME / KDE) showing your claude.ai plan usage:
 
 - the icon label shows the **5-hour** session usage;
 - the menu shows the **7-day** usage, the per-model weekly limits the API
-  reports (e.g. Fable, Opus, Sonnet), and when each window resets;
+  reports (e.g. Fable, Opus, Sonnet), and how long until each window resets
+  (`reset in 3h 20m (Wed 21:40)`);
 - each figure is also converted to time (hours for the 5-hour window, days
   for the weekly ones) next to the time elapsed since the last reset, so you
   can tell at a glance whether you are ahead of or behind the clock:
@@ -16,7 +17,10 @@ Linux systray indicator (GNOME / KDE) showing your claude.ai plan usage:
   **ahead of pace** — at least 25 % used and 10 points more than the share of
   the window already elapsed. Rows responsible for it are marked with ⚠;
 - the menu shows when the figures were last updated; after an error they
-  stay visible but greyed out, so stale data is never mistaken for current.
+  stay visible but greyed out, so stale data is never mistaken for current;
+- **desktop notifications** when a window crosses 80 % and 95 % (the latter
+  stays on screen until dismissed), and when a limit that was above 80 %
+  resets. Nothing is repeated when the applet restarts.
 
 The interface is available in **English, French, German, Spanish, Italian,
 Dutch and Portuguese** (see [Language](#language)).
@@ -89,6 +93,7 @@ Created on first run at `~/.config/claude-usage-tray/config.toml`:
 poll_interval_seconds = 300   # refresh interval
 firefox_profile = ""          # empty = default Firefox profile
 language = ""                 # "en", "fr", "de", "es", "it", "nl", "pt", or empty = system locale
+notifications = true          # desktop notifications (thresholds, resets)
 ```
 
 ### Language

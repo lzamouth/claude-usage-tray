@@ -37,8 +37,10 @@ MESSAGES: dict[str, str] = {
 	),
 	# tray
 	"unknown reset": "reset inconnu",
-	"%m/%d %H:%M": "%d/%m %H:%M",
-	"reset {when}": "reset {when}",
+	"reset in {remaining} ({when})": "reset dans {remaining} ({when})",
+	"{minutes} min": "{minutes} min",
+	"{hours}h {minutes:02d}m": "{hours} h {minutes:02d}",
+	"{days}d {hours}h": "{days} j {hours} h",
 	"Mon": "lun.",
 	"Tue": "mar.",
 	"Wed": "mer.",
@@ -63,4 +65,9 @@ MESSAGES: dict[str, str] = {
 	"Claude — session expired": "Claude — session expirée",
 	"Claude — error": "Claude — erreur",
 	"claude-usage-tray error": "Erreur claude-usage-tray",
+	# notifications
+	"5 hours": "5 h",
+	"Claude: {window} limit at {percent}": "Claude : quota {window} à {percent}",
+	"Claude: {window} limit reset": "Claude : quota {window} réinitialisé",
+	"Usage is available again.": "L'utilisation est de nouveau disponible.",
 }

@@ -26,6 +26,10 @@ firefox_profile = ""
 # Interface language: "en", "fr", "de", "es", "it", "nl", "pt", or empty to
 # follow the system locale.
 language = ""
+
+# Desktop notifications when usage crosses 80 % / 95 %, and when a limit
+# that was above 80 % resets.
+notifications = true
 """
 
 
@@ -34,6 +38,7 @@ class Config:
 	poll_interval_seconds: int
 	firefox_profile: str | None
 	language: str | None
+	notifications: bool
 
 
 def load_config() -> Config:
@@ -48,9 +53,11 @@ def load_config() -> Config:
 	poll_interval = int(data.get("poll_interval_seconds", 300))
 	profile = data.get("firefox_profile") or None
 	language = data.get("language") or None
+	notifications = bool(data.get("notifications", True))
 
 	return Config(
 		poll_interval_seconds=poll_interval,
 		firefox_profile=profile,
 		language=language,
+		notifications=notifications,
 	)

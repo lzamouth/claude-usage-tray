@@ -37,8 +37,10 @@ MESSAGES: dict[str, str] = {
 	),
 	# tray
 	"unknown reset": "reinicio desconocido",
-	"%m/%d %H:%M": "%d/%m %H:%M",
-	"reset {when}": "reinicio {when}",
+	"reset in {remaining} ({when})": "reinicio en {remaining} ({when})",
+	"{minutes} min": "{minutes} min",
+	"{hours}h {minutes:02d}m": "{hours} h {minutes:02d} min",
+	"{days}d {hours}h": "{days} d {hours} h",
 	"Mon": "lun.",
 	"Tue": "mar.",
 	"Wed": "mié.",
@@ -63,4 +65,9 @@ MESSAGES: dict[str, str] = {
 	"Claude — session expired": "Claude — sesión caducada",
 	"Claude — error": "Claude — error",
 	"claude-usage-tray error": "Error de claude-usage-tray",
+	# notifications
+	"5 hours": "5 h",
+	"Claude: {window} limit at {percent}": "Claude: límite de {window} al {percent}",
+	"Claude: {window} limit reset": "Claude: límite de {window} reiniciado",
+	"Usage is available again.": "El uso vuelve a estar disponible.",
 }

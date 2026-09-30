@@ -7,8 +7,9 @@ abonnement claude.ai :
 
 - le label de l'icône indique l'utilisation de la **session de 5 h** ;
 - le menu affiche l'utilisation sur **7 jours**, les limites hebdomadaires
-  par modèle renvoyées par l'API (ex. Fable, Opus, Sonnet), et l'heure de
-  réinitialisation de chaque fenêtre ;
+  par modèle renvoyées par l'API (ex. Fable, Opus, Sonnet), et le temps
+  restant avant la réinitialisation de chaque fenêtre
+  (`reset dans 3 h 20 (mer. 21:40)`) ;
 - chaque valeur est aussi convertie en durée (heures pour la fenêtre de
   5 h, jours pour les fenêtres hebdomadaires), à côté du temps écoulé depuis
   le dernier reset, pour voir d'un coup d'œil si tu consommes plus vite ou
@@ -20,7 +21,11 @@ abonnement claude.ai :
   cause sont marquées d'un ⚠ ;
 - le menu indique l'heure de la dernière mise à jour ; après une erreur, les
   chiffres restent affichés mais grisés, pour ne jamais confondre des
-  données périmées avec des données actuelles.
+  données périmées avec des données actuelles ;
+- **notifications de bureau** quand une fenêtre franchit 80 % et 95 % (la
+  seconde reste affichée jusqu'à ce que tu la fermes), et quand une limite
+  qui dépassait 80 % se réinitialise. Rien n'est répété au redémarrage de
+  l'applet.
 
 L'interface est disponible en **français, anglais, allemand, espagnol,
 italien, néerlandais et portugais** (voir [Langue](#langue)).
@@ -95,6 +100,7 @@ Créée au premier lancement dans `~/.config/claude-usage-tray/config.toml` :
 poll_interval_seconds = 300   # intervalle de rafraîchissement
 firefox_profile = ""          # vide = profil Firefox par défaut
 language = ""                 # "en", "fr", "de", "es", "it", "nl", "pt", ou vide = langue du système
+notifications = true          # notifications de bureau (seuils, resets)
 ```
 
 ### Langue

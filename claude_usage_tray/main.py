@@ -5,11 +5,13 @@ from __future__ import annotations
 import signal
 import threading
 import time
+from collections.abc import Callable
 
-from .api_client import ApiError, AuthError, ClaudeUsageClient, NetworkError
+from .api_client import ApiError, AuthError, ClaudeUsageClient, NetworkError, UsageSnapshot
 from .config import load_config
 from .cookie_reader import CookieError, read_session_key
 from .i18n import set_language
+from .notifications import DesktopNotifier, UsageWatcher
 from .system_events import SystemEventWatcher
 from .tray import UsageTray, open_login_page, quit_main_loop, run_main_loop
 
@@ -32,8 +34,16 @@ class RefreshWorker:
 	that GTK is only ever touched from the main thread.
 	"""
 
-	def __init__(self, tray: UsageTray, poll_interval: int, firefox_profile: str | None) -> None:
+	def __init__(
+		self,
+		tray: UsageTray,
+		poll_interval: int,
+		firefox_profile: str | None,
+		on_usage: Callable[[UsageSnapshot], None],
+	) -> None:
 		self._tray = tray
+		# Called in the main thread with every successful snapshot.
+		self._on_usage = on_usage
 		self._poll_interval = poll_interval
 		self._firefox_profile = firefox_profile
 
@@ -106,7 +116,7 @@ class RefreshWorker:
 			# Valid session: no more fast polling or backoff needed.
 			self._consecutive_failures = 0
 			self._fast_retry_until = 0.0
-			GLib.idle_add(self._tray.show_usage, usage)
+			GLib.idle_add(self._on_usage, usage)
 
 
 def main() -> None:
@@ -136,10 +146,22 @@ def main() -> None:
 		on_login_requested=on_login_requested,
 	)
 
+	usage_watcher = UsageWatcher()
+	notifier = DesktopNotifier() if config.notifications else None
+
+	def on_usage(usage: UsageSnapshot) -> None:
+		# Runs via GLib.idle_add: must not return True, or it would repeat.
+		tray.show_usage(usage)
+		notices = usage_watcher.update(usage)
+		if notifier is not None:
+			for notice in notices:
+				notifier.send(notice)
+
 	worker = RefreshWorker(
 		tray=tray,
 		poll_interval=config.poll_interval_seconds,
 		firefox_profile=config.firefox_profile,
+		on_usage=on_usage,
 	)
 	worker_holder["worker"] = worker
 	worker.start()
