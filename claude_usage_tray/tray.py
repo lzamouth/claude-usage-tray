@@ -5,6 +5,7 @@ from __future__ import annotations
 import shutil
 import subprocess
 from datetime import datetime
+from pathlib import Path
 
 import gi
 
@@ -30,20 +31,18 @@ from .formatting import (
 	sorted_model_keys,
 )
 from .i18n import _
+from .icons import gauge_icon_name, gauge_svg
 from .severity import Severity, snapshot_severity, window_severity
 
 APP_ID = "claude-usage-tray"
 LOGIN_URL = "https://claude.ai/login"
 USAGE_URL = "https://claude.ai/settings/usage"
-ICON_OK = "network-transmit-receive-symbolic"
-ICON_WARN = "dialog-warning-symbolic"
 ICON_ERROR = "dialog-error-symbolic"
 
-SEVERITY_ICONS = {
-	Severity.OK: ICON_OK,
-	Severity.WARN: ICON_WARN,
-	Severity.CRITICAL: ICON_ERROR,
-}
+# Generated gauge icons live in the per-session runtime directory (cleared at
+# logout); the panel looks them up by name through the indicator's icon
+# theme path.
+ICON_DIR = Path(GLib.get_user_runtime_dir()) / APP_ID / "icons"
 
 # Prefix of menu rows whose window is close to its limit or ahead of pace.
 WARNING_MARK = "⚠ "
@@ -100,9 +99,16 @@ class UsageTray:
 		self._on_quit = on_quit
 		self._on_login_requested = on_login_requested or open_login_page
 
+		ICON_DIR.mkdir(parents=True, exist_ok=True)
+		for stale in ICON_DIR.glob("*.svg"):
+			stale.unlink(missing_ok=True)
+		self._gauge_name: str | None = None
+		initial_icon = self._write_gauge(None, None, Severity.OK)
+
 		self._indicator = AppIndicator3.Indicator.new(
-			APP_ID, ICON_OK, AppIndicator3.IndicatorCategory.APPLICATION_STATUS
+			APP_ID, initial_icon, AppIndicator3.IndicatorCategory.APPLICATION_STATUS
 		)
+		self._indicator.set_icon_theme_path(str(ICON_DIR))
 		self._indicator.set_status(AppIndicator3.IndicatorStatus.ACTIVE)
 
 		# No item is ever made insensitive: GNOME greys those out, which made
@@ -214,8 +220,14 @@ class UsageTray:
 		self._updated_item.set_visible(True)
 		self._status_item.set_visible(False)
 		self._login_item.set_visible(False)
+		five_hour = usage.five_hour
 		self._indicator.set_icon_full(
-			SEVERITY_ICONS[snapshot_severity(usage)], _("Claude usage")
+			self._write_gauge(
+				five_hour.utilization if five_hour else None,
+				five_hour.elapsed_fraction(FIVE_HOURS) if five_hour else None,
+				snapshot_severity(usage),
+			),
+			_("Claude usage"),
 		)
 
 	def show_error(self, message: str, needs_login: bool = False) -> None:
@@ -236,6 +248,20 @@ class UsageTray:
 				)
 			)
 		self._indicator.set_icon_full(ICON_ERROR, _("claude-usage-tray error"))
+
+	def _write_gauge(
+		self, utilization: float | None, elapsed: float | None, severity: Severity
+	) -> str:
+		"""Write the gauge SVG for this state if needed; return its icon name."""
+		name = gauge_icon_name(utilization, elapsed, severity)
+		path = ICON_DIR / f"{name}.svg"
+		if not path.exists():
+			path.write_text(gauge_svg(utilization, elapsed, severity), encoding="utf-8")
+		# Only the current gauge is kept on disk.
+		if self._gauge_name not in (None, name):
+			(ICON_DIR / f"{self._gauge_name}.svg").unlink(missing_ok=True)
+		self._gauge_name = name
+		return name
 
 	@staticmethod
 	def _set_bar(item: Gtk.MenuItem, bar: str | None) -> None:

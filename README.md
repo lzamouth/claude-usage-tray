@@ -4,7 +4,9 @@
 
 Linux systray indicator (GNOME / KDE) showing your claude.ai plan usage:
 
-- the icon label shows the **5-hour** session usage;
+- the icon is a **gauge** that fills up with the **5-hour** session usage,
+  also shown as a label next to it; a small tick on the ring marks how much
+  of the 5-hour window has elapsed;
 - the menu shows the **7-day** usage, the per-model weekly limits the API
   reports (e.g. Fable, Opus, Sonnet), and how long until each window resets
   (`reset in 3h 20m (Wed 21:40)`);
@@ -16,8 +18,8 @@ Linux systray indicator (GNOME / KDE) showing your claude.ai plan usage:
   visually: `█` used, `░` time elapsed but not used yet (your margin), `▌`
   used ahead of pace, `▁` rest of the window. Clicking a row opens the
   claude.ai usage page;
-- the icon reflects the **worst of all windows** (5 hours, 7 days, per
-  model): warning at 75 %, error at 90 %, and also warning when you are
+- the gauge colour reflects the **worst of all windows** (5 hours, 7 days,
+  per model): green, orange at 75 %, red at 90 %, and also orange when you are
   **ahead of pace** — at least 25 % used and 10 points more than the share of
   the window already elapsed. Rows responsible for it are marked with ⚠;
 - the menu shows when the figures were last updated; after an error they

@@ -10,6 +10,8 @@ claude_usage_tray/
 ├── main.py           RefreshWorker (daemon thread, backoff, fast retry) + main()
 ├── tray.py           UsageTray (AppIndicator menu), open_login_page()
 ├── severity.py       icon policy: thresholds + pace alert (no GTK, tested)
+├── icons.py          gauge icon as SVG (no GTK, tested), written by tray.py
+│                     to $XDG_RUNTIME_DIR/claude-usage-tray/icons
 ├── formatting.py     percent, pace, text progress bars, remaining time,
 │                     reset labels (no GTK)
 ├── notifications.py  UsageWatcher (what to notify, tested) + DesktopNotifier
@@ -47,8 +49,11 @@ tests/                unittest, no network, no GTK
   made of Unicode Block Elements (same advance width in UI fonts; avoid box
   drawing characters, which are narrower). Never make items insensitive:
   GNOME greys them out and they become hard to read.
-- **Icon:** driven by `severity.snapshot_severity()`, the worst of all
-  windows. Keep thresholds in `severity.py`, not in the UI.
+- **Icon:** a generated gauge: ring = 5-hour usage, colour =
+  `severity.snapshot_severity()` (worst of all windows), tick = elapsed share
+  of the 5-hour window. Keep thresholds in `severity.py`, not in the UI.
+  Each rendered state has its own icon name (`gauge_icon_name()`), because
+  the panel caches icons by name; only the current SVG is kept on disk.
 - **Notifications:** decided by `UsageWatcher.update()` from successive
   snapshots. The first snapshot is a baseline (no notice on restart); a
   reset is detected once the old `resets_at` has passed *and* the API has

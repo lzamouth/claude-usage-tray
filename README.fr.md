@@ -5,7 +5,9 @@
 Indicateur systray Linux (GNOME / KDE) affichant l'utilisation de ton
 abonnement claude.ai :
 
-- le label de l'icône indique l'utilisation de la **session de 5 h** ;
+- l'icône est une **jauge** qui se remplit avec l'utilisation de la
+  **session de 5 h**, aussi affichée en texte à côté ; un petit trait sur
+  l'anneau indique la part de la fenêtre de 5 h déjà écoulée ;
 - le menu affiche l'utilisation sur **7 jours**, les limites hebdomadaires
   par modèle renvoyées par l'API (ex. Fable, Opus, Sonnet), et le temps
   restant avant la réinitialisation de chaque fenêtre
@@ -18,8 +20,8 @@ abonnement claude.ai :
   même chose visuellement : `█` consommé, `░` temps écoulé pas encore
   consommé (ta marge), `▌` consommé en avance sur le rythme, `▁` reste de la
   fenêtre. Un clic sur une ligne ouvre la page d'utilisation de claude.ai ;
-- l'icône reflète la **pire de toutes les fenêtres** (5 h, 7 jours, par
-  modèle) : avertissement à 75 %, erreur à 90 %, et avertissement aussi
+- la couleur de la jauge reflète la **pire de toutes les fenêtres** (5 h,
+  7 jours, par modèle) : vert, orange à 75 %, rouge à 90 %, et orange aussi
   quand tu consommes **plus vite que le temps** — au moins 25 % utilisés et
   10 points de plus que la part de la fenêtre déjà écoulée. Les lignes en
   cause sont marquées d'un ⚠ ;
