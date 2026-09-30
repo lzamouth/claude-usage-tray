@@ -7,6 +7,9 @@ Linux systray indicator (GNOME / KDE) showing your claude.ai plan usage:
 - the icon label shows the **5-hour** session usage;
 - the menu shows the **7-day** usage, the per-model weekly limits the API
   reports (e.g. Fable, Opus, Sonnet), and when each window resets;
+- each weekly figure is also shown in days next to the time elapsed since
+  the last reset, so you can tell at a glance whether you are ahead of or
+  behind the clock: `7 days: 16% (1.1 d / 1.3 d elapsed)`;
 - the icon turns to a warning (≥ 75 %) or error (≥ 90 %) symbol as you get
   close to the limit.
 

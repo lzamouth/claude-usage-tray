@@ -9,6 +9,9 @@ abonnement claude.ai :
 - le menu affiche l'utilisation sur **7 jours**, les limites hebdomadaires
   par modèle renvoyées par l'API (ex. Fable, Opus, Sonnet), et l'heure de
   réinitialisation de chaque fenêtre ;
+- chaque valeur hebdomadaire est aussi exprimée en jours, à côté du temps
+  écoulé depuis le dernier reset, pour voir d'un coup d'œil si tu consommes
+  plus vite ou moins vite que le temps : `7 jours : 16% (1,1 j / 1,3 j écoulés)` ;
 - l'icône passe en avertissement (≥ 75 %) puis en erreur (≥ 90 %) à
   l'approche de la limite.
 

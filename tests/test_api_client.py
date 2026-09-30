@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import unittest
+from datetime import datetime, timedelta, timezone
 from unittest import mock
 
 import requests
@@ -80,6 +81,24 @@ class ErrorClassificationTest(unittest.TestCase):
 		headers = api_client.ClaudeUsageClient("dummy")._session.headers
 		self.assertEqual("cors", headers["Sec-Fetch-Mode"])
 		self.assertEqual("same-origin", headers["Sec-Fetch-Site"])
+
+
+class ElapsedFractionTest(unittest.TestCase):
+	def test_elapsed_fraction(self) -> None:
+		resets_at = datetime(2026, 10, 6, 8, 0, tzinfo=timezone.utc)
+		window = api_client.UsageWindow(utilization=16.0, resets_at=resets_at)
+		week = api_client.WEEK
+		cases = [
+			(resets_at - week, 0.0),
+			(resets_at - week / 2, 0.5),
+			(resets_at, 1.0),
+			(resets_at - week - timedelta(hours=1), 0.0),  # clamped
+			(resets_at + timedelta(hours=1), 1.0),  # clamped
+		]
+		for now, expected in cases:
+			with self.subTest(now=now):
+				self.assertAlmostEqual(expected, window.elapsed_fraction(week, now))
+		self.assertIsNone(api_client.UsageWindow(16.0, None).elapsed_fraction(week))
 
 
 class CookieExpiryTest(unittest.TestCase):

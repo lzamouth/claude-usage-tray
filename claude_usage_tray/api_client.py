@@ -13,7 +13,7 @@ import re
 import shutil
 import subprocess
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from functools import lru_cache
 from typing import Any
 
@@ -25,6 +25,9 @@ BASE_URL = "https://claude.ai/api"
 # Used when the installed Firefox version cannot be read.
 FALLBACK_FIREFOX_VERSION = "140"
 TIMEOUT_SECONDS = 15
+
+# Length of the weekly windows (overall "seven_day" and per-model limits).
+WEEK = timedelta(days=7)
 
 
 class ApiError(RuntimeError):
@@ -105,6 +108,17 @@ class UsageWindow:
 			utilization=data.get("utilization"),
 			resets_at=_parse_datetime(data.get("resets_at")),
 		)
+
+	def elapsed_fraction(self, period: timedelta, now: datetime | None = None) -> float | None:
+		"""Share of the window already elapsed (0-1), or None without a reset time.
+
+		The window is assumed to start ``period`` before ``resets_at``.
+		"""
+		if self.resets_at is None:
+			return None
+		now = now or datetime.now(timezone.utc)
+		remaining = (self.resets_at - now) / period
+		return min(1.0, max(0.0, 1.0 - remaining))
 
 
 # "seven_day_*" keys that do not name a model (no per-model row for them).

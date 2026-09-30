@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import shutil
 import subprocess
+from datetime import timedelta
 
 import gi
 
@@ -18,7 +19,7 @@ except (ValueError, ImportError):
 
 from gi.repository import GLib, Gtk
 
-from .api_client import UsageSnapshot, UsageWindow
+from .api_client import WEEK, UsageSnapshot, UsageWindow
 from .i18n import _
 
 APP_ID = "claude-usage-tray"
@@ -90,6 +91,28 @@ def format_percent(window: UsageWindow | None) -> str:
 	if window is None or window.utilization is None:
 		return "—"
 	return f"{window.utilization:.0f}%"
+
+
+def _format_decimal(value: float) -> str:
+	# "." is translated to the locale's decimal separator.
+	return f"{value:.1f}".replace(".", _("."))
+
+
+def format_weekly_pace(window: UsageWindow) -> str:
+	"""Usage and elapsed time of a weekly window, both in days.
+
+	Putting them in the same unit makes it obvious whether usage is ahead of
+	or behind the clock: "1.1 d / 1.3 d elapsed" means under pace.
+	"""
+	elapsed = window.elapsed_fraction(WEEK)
+	if window.utilization is None or elapsed is None:
+		return format_percent(window)
+	week_days = WEEK / timedelta(days=1)
+	return _("{percent} ({used} d / {elapsed} d elapsed)").format(
+		percent=format_percent(window),
+		used=_format_decimal(window.utilization / 100 * week_days),
+		elapsed=_format_decimal(elapsed * week_days),
+	)
 
 
 def format_reset(window: UsageWindow | None) -> str:
@@ -200,7 +223,7 @@ class UsageTray:
 			item.set_label(
 				_("{label}: {percent} — {reset}").format(
 					label=label,
-					percent=format_percent(window),
+					percent=format_weekly_pace(window),
 					reset=format_reset(window),
 				)
 			)
