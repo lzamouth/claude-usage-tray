@@ -1,0 +1,13 @@
+[Unit]
+Description=Systray indicator for claude.ai usage
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=@APP_DIR@/.venv/bin/python -m claude_usage_tray
+WorkingDirectory=@APP_DIR@
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=graphical-session.target

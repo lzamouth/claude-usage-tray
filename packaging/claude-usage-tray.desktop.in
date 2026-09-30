@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Claude Usage Tray
+Comment=Systray indicator for claude.ai usage
+Comment[fr]=Indicateur systray d'utilisation de claude.ai
+Exec=@APP_DIR@/.venv/bin/python -m claude_usage_tray
+Path=@APP_DIR@
+Icon=network-transmit-receive-symbolic
+Terminal=false
+X-GNOME-Autostart-enabled=true
+NoDisplay=false
