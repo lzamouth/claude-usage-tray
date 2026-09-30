@@ -26,7 +26,9 @@ BASE_URL = "https://claude.ai/api"
 FALLBACK_FIREFOX_VERSION = "140"
 TIMEOUT_SECONDS = 15
 
-# Length of the weekly windows (overall "seven_day" and per-model limits).
+# Window lengths: the "five_hour" session, and the weekly windows (overall
+# "seven_day" and per-model limits).
+FIVE_HOURS = timedelta(hours=5)
 WEEK = timedelta(days=7)
 
 

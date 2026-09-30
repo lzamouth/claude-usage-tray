@@ -55,6 +55,7 @@ MESSAGES: dict[str, str] = {
 	"Claude — 5h: {percent} — {reset}": "Claude — 5h : {percent} — {reset}",
 	"7 days": "7 jours",
 	"7 days ({model})": "7 jours ({model})",
+	"{percent} ({used} h / {elapsed} h elapsed)": "{percent} ({used} h / {elapsed} h écoulées)",
 	"{percent} ({used} d / {elapsed} d elapsed)": "{percent} ({used} j / {elapsed} j écoulés)",
 	".": ",",
 	"{label}: {percent} — {reset}": "{label} : {percent} — {reset}",

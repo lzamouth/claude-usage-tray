@@ -19,7 +19,7 @@ except (ValueError, ImportError):
 
 from gi.repository import GLib, Gtk
 
-from .api_client import WEEK, UsageSnapshot, UsageWindow
+from .api_client import FIVE_HOURS, WEEK, UsageSnapshot, UsageWindow
 from .i18n import _
 
 APP_ID = "claude-usage-tray"
@@ -98,20 +98,38 @@ def _format_decimal(value: float) -> str:
 	return f"{value:.1f}".replace(".", _("."))
 
 
-def format_weekly_pace(window: UsageWindow) -> str:
-	"""Usage and elapsed time of a weekly window, both in days.
+def _format_pace(
+	window: UsageWindow | None, period: timedelta, unit: timedelta, template: str
+) -> str:
+	"""Usage and elapsed time of a window, both expressed in ``unit``.
 
 	Putting them in the same unit makes it obvious whether usage is ahead of
 	or behind the clock: "1.1 d / 1.3 d elapsed" means under pace.
 	"""
-	elapsed = window.elapsed_fraction(WEEK)
-	if window.utilization is None or elapsed is None:
+	if window is None or window.utilization is None:
 		return format_percent(window)
-	week_days = WEEK / timedelta(days=1)
-	return _("{percent} ({used} d / {elapsed} d elapsed)").format(
+	elapsed = window.elapsed_fraction(period)
+	if elapsed is None:
+		return format_percent(window)
+	units = period / unit
+	return template.format(
 		percent=format_percent(window),
-		used=_format_decimal(window.utilization / 100 * week_days),
-		elapsed=_format_decimal(elapsed * week_days),
+		used=_format_decimal(window.utilization / 100 * units),
+		elapsed=_format_decimal(elapsed * units),
+	)
+
+
+def format_session_pace(window: UsageWindow | None) -> str:
+	"""5-hour window pace, in hours."""
+	return _format_pace(
+		window, FIVE_HOURS, timedelta(hours=1), _("{percent} ({used} h / {elapsed} h elapsed)")
+	)
+
+
+def format_weekly_pace(window: UsageWindow | None) -> str:
+	"""Weekly window pace, in days."""
+	return _format_pace(
+		window, WEEK, timedelta(days=1), _("{percent} ({used} d / {elapsed} d elapsed)")
 	)
 
 
@@ -194,7 +212,7 @@ class UsageTray:
 		# The systray (icon + label) shows the 5-hour usage.
 		self._header_item.set_label(
 			_("Claude — 5h: {percent} — {reset}").format(
-				percent=format_percent(usage.five_hour),
+				percent=format_session_pace(usage.five_hour),
 				reset=format_reset(usage.five_hour),
 			)
 		)
