@@ -6,10 +6,11 @@ import signal
 import threading
 import time
 
-from .api_client import ApiError, AuthError, ClaudeUsageClient
+from .api_client import ApiError, AuthError, ClaudeUsageClient, NetworkError
 from .config import load_config
 from .cookie_reader import CookieError, read_session_key
 from .i18n import set_language
+from .system_events import SystemEventWatcher
 from .tray import UsageTray, open_login_page, quit_main_loop, run_main_loop
 
 from gi.repository import GLib
@@ -93,6 +94,10 @@ class RefreshWorker:
 			self._consecutive_failures += 1
 			self._cached_org_id = None
 			GLib.idle_add(self._tray.show_error, str(exc), True)
+		except NetworkError as exc:
+			# Offline: no backoff, the server is not to blame. The system event
+			# watcher triggers a refresh as soon as the network is back.
+			GLib.idle_add(self._tray.show_error, str(exc), False)
 		except ApiError as exc:
 			# Includes BlockedError (Cloudflare): signing in would not help.
 			self._consecutive_failures += 1
@@ -138,6 +143,10 @@ def main() -> None:
 	)
 	worker_holder["worker"] = worker
 	worker.start()
+
+	# Refresh right after a resume from suspend or when the network returns.
+	# Kept referenced for the lifetime of the main loop.
+	system_events = SystemEventWatcher(on_wake=worker.request_refresh)
 
 	# Lets Ctrl+C work even under the GTK main loop.
 	signal.signal(signal.SIGINT, lambda *_args: on_quit())

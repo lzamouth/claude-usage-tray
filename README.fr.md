@@ -13,8 +13,14 @@ abonnement claude.ai :
   5 h, jours pour les fenêtres hebdomadaires), à côté du temps écoulé depuis
   le dernier reset, pour voir d'un coup d'œil si tu consommes plus vite ou
   moins vite que le temps : `7 jours : 16% (1,1 j / 1,3 j écoulés)` ;
-- l'icône passe en avertissement (≥ 75 %) puis en erreur (≥ 90 %) à
-  l'approche de la limite.
+- l'icône reflète la **pire de toutes les fenêtres** (5 h, 7 jours, par
+  modèle) : avertissement à 75 %, erreur à 90 %, et avertissement aussi
+  quand tu consommes **plus vite que le temps** — au moins 25 % utilisés et
+  10 points de plus que la part de la fenêtre déjà écoulée. Les lignes en
+  cause sont marquées d'un ⚠ ;
+- le menu indique l'heure de la dernière mise à jour ; après une erreur, les
+  chiffres restent affichés mais grisés, pour ne jamais confondre des
+  données périmées avec des données actuelles.
 
 L'interface est disponible en **français, anglais, allemand, espagnol,
 italien, néerlandais et portugais** (voir [Langue](#langue)).
@@ -30,12 +36,17 @@ italien, néerlandais et portugais** (voir [Langue](#langue)).
   possède déjà après une connexion normale à claude.ai, directement dans le
   `cookies.sqlite` du profil (copié en répertoire temporaire, car Firefox le
   verrouille). Seul le conteneur par défaut est utilisé ; les cookies expirés
-  sont ignorés.
+  sont ignorés. Firefox installé en .deb, en snap (le défaut d'Ubuntu) ou en
+  Flatpak est pris en charge ; s'il y en a plusieurs, le plus récemment
+  utilisé l'emporte.
 - Toutes les 5 minutes (configurable), elle appelle :
   - `GET https://claude.ai/api/organizations`
   - `GET https://claude.ai/api/organizations/{id}/usage`
-- En cas d'échecs répétés, l'intervalle double (jusqu'à 1 h) au lieu de
-  marteler le serveur ; il revient à la normale dès le premier succès.
+- Elle rafraîchit immédiatement à la sortie de veille et au retour du
+  réseau.
+- En cas d'échecs répétés côté serveur, l'intervalle double (jusqu'à 1 h)
+  au lieu de marteler le serveur ; il revient à la normale dès le premier
+  succès. Les coupures réseau ne déclenchent pas ce ralentissement.
 
 ## Prérequis
 

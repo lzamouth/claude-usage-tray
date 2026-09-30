@@ -11,8 +11,12 @@ Linux systray indicator (GNOME / KDE) showing your claude.ai plan usage:
   for the weekly ones) next to the time elapsed since the last reset, so you
   can tell at a glance whether you are ahead of or behind the clock:
   `7 days: 16% (1.1 d / 1.3 d elapsed)`;
-- the icon turns to a warning (≥ 75 %) or error (≥ 90 %) symbol as you get
-  close to the limit.
+- the icon reflects the **worst of all windows** (5 hours, 7 days, per
+  model): warning at 75 %, error at 90 %, and also warning when you are
+  **ahead of pace** — at least 25 % used and 10 points more than the share of
+  the window already elapsed. Rows responsible for it are marked with ⚠;
+- the menu shows when the figures were last updated; after an error they
+  stay visible but greyed out, so stale data is never mistaken for current.
 
 The interface is available in **English, French, German, Spanish, Italian,
 Dutch and Portuguese** (see [Language](#language)).
@@ -28,12 +32,16 @@ Dutch and Portuguese** (see [Language](#language)).
   Firefox already holds after you sign in to claude.ai normally, straight
   from the profile's `cookies.sqlite` (copied to a temp dir, since Firefox
   locks it). Only the default container is used; expired cookies are
-  ignored.
+  ignored. Firefox installed as a .deb, snap (Ubuntu's default) or Flatpak
+  is supported; with several installs, the most recently used one wins.
 - Every 5 minutes (configurable) it calls:
   - `GET https://claude.ai/api/organizations`
   - `GET https://claude.ai/api/organizations/{id}/usage`
-- On repeated failures the interval doubles (up to 1 hour) instead of
-  hammering the server; it returns to normal on the first success.
+- It refreshes immediately after a resume from suspend and when the network
+  comes back.
+- On repeated server-side failures the interval doubles (up to 1 hour)
+  instead of hammering the server; it returns to normal on the first
+  success. Network outages do not trigger this backoff.
 
 ## Requirements
 

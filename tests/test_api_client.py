@@ -77,6 +77,13 @@ class ErrorClassificationTest(unittest.TestCase):
 			with self.subTest(status=response.status_code, headers=dict(response.headers)):
 				self.assertIs(expected, self._raised(response))
 
+	def test_connection_failure_is_network_error(self) -> None:
+		client = api_client.ClaudeUsageClient("dummy")
+		failure = requests.ConnectionError("offline")
+		with mock.patch.object(client._session, "get", side_effect=failure):
+			with self.assertRaises(api_client.NetworkError):
+				client._get("/organizations")
+
 	def test_browser_headers_sent(self) -> None:
 		headers = api_client.ClaudeUsageClient("dummy")._session.headers
 		self.assertEqual("cors", headers["Sec-Fetch-Mode"])

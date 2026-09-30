@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import shutil
 import subprocess
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 import gi
 
@@ -21,6 +21,7 @@ from gi.repository import GLib, Gtk
 
 from .api_client import FIVE_HOURS, WEEK, UsageSnapshot, UsageWindow
 from .i18n import _
+from .severity import Severity, snapshot_severity, window_severity
 
 APP_ID = "claude-usage-tray"
 LOGIN_URL = "https://claude.ai/login"
@@ -28,8 +29,14 @@ ICON_OK = "network-transmit-receive-symbolic"
 ICON_WARN = "dialog-warning-symbolic"
 ICON_ERROR = "dialog-error-symbolic"
 
-WARN_THRESHOLD = 75.0
-CRITICAL_THRESHOLD = 90.0
+SEVERITY_ICONS = {
+	Severity.OK: ICON_OK,
+	Severity.WARN: ICON_WARN,
+	Severity.CRITICAL: ICON_ERROR,
+}
+
+# Prefix of menu rows whose window is close to its limit or ahead of pace.
+WARNING_MARK = "⚠ "
 
 # Menu slots reserved for the per-model breakdown — generous, so that new
 # models added on claude.ai fit without touching the code.
@@ -165,6 +172,13 @@ class UsageTray:
 		self._status_item.set_no_show_all(True)
 		self._status_item.set_visible(False)
 
+		# Time of the last successful refresh; tells stale figures apart.
+		self._updated_item = Gtk.MenuItem(label="")
+		self._updated_item.set_sensitive(False)
+		self._updated_item.set_no_show_all(True)
+		self._updated_item.set_visible(False)
+		self._last_success: datetime | None = None
+
 		self._login_item = Gtk.MenuItem(label=_("Sign in to Claude again…"))
 		self._login_item.set_no_show_all(True)
 		self._login_item.set_visible(False)
@@ -186,6 +200,7 @@ class UsageTray:
 
 		self._menu.append(Gtk.SeparatorMenuItem())
 		self._menu.append(self._status_item)
+		self._menu.append(self._updated_item)
 
 		refresh_item = Gtk.MenuItem(label=_("Refresh now"))
 		refresh_item.connect("activate", lambda _item: self._on_refresh_requested())
@@ -207,20 +222,20 @@ class UsageTray:
 		self._header_item.set_label(_("Claude — loading…"))
 
 	def show_usage(self, usage: UsageSnapshot) -> None:
-		five_hour_pct = usage.five_hour.utilization if usage.five_hour else None
-
-		# The systray (icon + label) shows the 5-hour usage.
-		self._header_item.set_label(
-			_("Claude — 5h: {percent} — {reset}").format(
-				percent=format_session_pace(usage.five_hour),
-				reset=format_reset(usage.five_hour),
-			)
+		# The systray label shows the 5-hour usage; the icon reflects the
+		# worst of all windows, pace included.
+		header = _("Claude — 5h: {percent} — {reset}").format(
+			percent=format_session_pace(usage.five_hour),
+			reset=format_reset(usage.five_hour),
 		)
+		if window_severity(usage.five_hour, FIVE_HOURS) >= Severity.WARN:
+			header = WARNING_MARK + header
+		self._header_item.set_label(header)
 		self._indicator.set_label(format_percent(usage.five_hour), "")
 
 		# Everything else (overall 7 days + per-model breakdown) goes in the
 		# drop-down menu. Models are whatever the API returns.
-		rows = [(_("7 days"), usage.seven_day)]
+		rows: list[tuple[str, UsageWindow | None]] = [(_("7 days"), usage.seven_day)]
 		for key in _sorted_model_keys(usage.model_breakdown):
 			rows.append(
 				(
@@ -238,17 +253,26 @@ class UsageTray:
 				item.set_visible(False)
 				continue
 			item.set_visible(True)
-			item.set_label(
-				_("{label}: {percent} — {reset}").format(
-					label=label,
-					percent=format_weekly_pace(window),
-					reset=format_reset(window),
-				)
+			item.set_sensitive(True)
+			text = _("{label}: {percent} — {reset}").format(
+				label=label,
+				percent=format_weekly_pace(window),
+				reset=format_reset(window),
 			)
+			if window_severity(window, WEEK) >= Severity.WARN:
+				text = WARNING_MARK + text
+			item.set_label(text)
 
+		self._last_success = datetime.now()
+		self._updated_item.set_label(
+			_("Updated at {time}").format(time=self._last_success.strftime("%H:%M"))
+		)
+		self._updated_item.set_visible(True)
 		self._status_item.set_visible(False)
 		self._login_item.set_visible(False)
-		self._indicator.set_icon_full(self._icon_for(five_hour_pct), _("Claude usage"))
+		self._indicator.set_icon_full(
+			SEVERITY_ICONS[snapshot_severity(usage)], _("Claude usage")
+		)
 
 	def show_error(self, message: str, needs_login: bool = False) -> None:
 		self._header_item.set_label(
@@ -257,17 +281,17 @@ class UsageTray:
 		self._status_item.set_label(message)
 		self._status_item.set_visible(True)
 		self._login_item.set_visible(needs_login)
+		# Figures from the last success stay visible, greyed out, with their
+		# timestamp, so they are not mistaken for current data.
+		for item in self._detail_items:
+			item.set_sensitive(False)
+		if self._last_success is not None:
+			self._updated_item.set_label(
+				_("Last successful update: {time}").format(
+					time=self._last_success.strftime("%H:%M")
+				)
+			)
 		self._indicator.set_icon_full(ICON_ERROR, _("claude-usage-tray error"))
-
-	@staticmethod
-	def _icon_for(five_hour_pct: float | None) -> str:
-		if five_hour_pct is None:
-			return ICON_OK
-		if five_hour_pct >= CRITICAL_THRESHOLD:
-			return ICON_ERROR
-		if five_hour_pct >= WARN_THRESHOLD:
-			return ICON_WARN
-		return ICON_OK
 
 
 def run_main_loop() -> None:

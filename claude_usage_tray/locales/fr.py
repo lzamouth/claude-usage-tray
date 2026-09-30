@@ -23,11 +23,9 @@ MESSAGES: dict[str, str] = {
 	),
 	# cookie_reader
 	"Firefox profile not found: {profile}": "Profil Firefox introuvable : {profile}",
-	"profiles.ini not found ({path}). Is Firefox installed and has it been started at least once?": (
-		"Fichier profiles.ini introuvable ({path}). Firefox est-il installé "
-		"et a-t-il déjà été lancé ?"
+	"No Firefox profile found. Is Firefox installed and has it been started at least once?": (
+		"Aucun profil Firefox trouvé. Firefox est-il installé et a-t-il déjà été lancé ?"
 	),
-	"No Firefox profile found in profiles.ini.": "Aucun profil Firefox trouvé dans profiles.ini.",
 	"cookies.sqlite not found in {path}": "cookies.sqlite introuvable dans {path}",
 	"The claude.ai sessionKey cookie has expired — sign in to claude.ai again in Firefox.": (
 		"Cookie sessionKey de claude.ai expiré — reconnecte-toi à claude.ai "
@@ -59,6 +57,8 @@ MESSAGES: dict[str, str] = {
 	"{percent} ({used} d / {elapsed} d elapsed)": "{percent} ({used} j / {elapsed} j écoulés)",
 	".": ",",
 	"{label}: {percent} — {reset}": "{label} : {percent} — {reset}",
+	"Updated at {time}": "Mis à jour à {time}",
+	"Last successful update: {time}": "Dernière mise à jour réussie : {time}",
 	"Claude usage": "Utilisation Claude",
 	"Claude — session expired": "Claude — session expirée",
 	"Claude — error": "Claude — erreur",

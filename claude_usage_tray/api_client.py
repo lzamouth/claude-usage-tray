@@ -40,6 +40,14 @@ class AuthError(ApiError):
 	"""The session cookie is invalid, expired or missing (401/403)."""
 
 
+class NetworkError(ApiError):
+	"""claude.ai could not be reached (offline, DNS, timeout...).
+
+	Not the server's fault, so it does not trigger the backoff: the worker
+	retries at the normal pace and immediately when the network comes back.
+	"""
+
+
 class BlockedError(ApiError):
 	"""Request blocked by Cloudflare (anti-bot challenge), not by the session.
 
@@ -200,7 +208,7 @@ class ClaudeUsageClient:
 		try:
 			response = self._session.get(url, timeout=TIMEOUT_SECONDS)
 		except requests.RequestException as exc:
-			raise ApiError(
+			raise NetworkError(
 				_("Request to {url} failed: {error}").format(url=url, error=exc)
 			) from exc
 

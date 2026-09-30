@@ -9,9 +9,12 @@ claude.ai plan usage. User docs: README.md (EN) and README.fr.md (FR).
 claude_usage_tray/
 ├── main.py           RefreshWorker (daemon thread, backoff, fast retry) + main()
 ├── tray.py           UsageTray (AppIndicator menu), open_login_page()
+├── severity.py       icon policy: thresholds + pace alert (no GTK, tested)
+├── system_events.py  refresh on resume (logind) and network up (Gio)
 ├── api_client.py     ClaudeUsageClient, UsageSnapshot, UsageWindow;
-│                     errors: ApiError > AuthError, BlockedError
-├── cookie_reader.py  profiles.ini → cookies.sqlite → sessionKey
+│                     errors: ApiError > AuthError, BlockedError, NetworkError
+├── cookie_reader.py  Firefox roots (deb/XDG/snap/Flatpak) → profiles.ini
+│                     → cookies.sqlite → sessionKey
 ├── config.py         ~/.config/claude-usage-tray/config.toml
 ├── i18n.py           _(), set_language(), detect_language()
 └── locales/*.py      fr, de, es, it, nl, pt catalogs (English is the source language)
@@ -34,6 +37,10 @@ tests/                unittest, no network, no GTK
 - **Error semantics:** `AuthError` / `CookieError` → `needs_login=True` (the
   "Sign in again" menu item). `BlockedError` (Cloudflare challenge) and other
   `ApiError` → `needs_login=False`; signing in again would not help.
+  `NetworkError` does not count towards the backoff (the server is not to
+  blame; `SystemEventWatcher` refreshes when the network returns).
+- **Icon:** driven by `severity.snapshot_severity()`, the worst of all
+  windows. Keep thresholds in `severity.py`, not in the UI.
 - **HTTP headers:** the `Sec-Fetch-*` headers are what gets past Cloudflare;
   without them every request gets `403` + `cf-mitigated: challenge`,
   regardless of User-Agent. Do not remove them.

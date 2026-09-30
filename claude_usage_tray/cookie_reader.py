@@ -11,7 +11,17 @@ from pathlib import Path
 
 from .i18n import _
 
-FIREFOX_ROOT = Path.home() / ".mozilla" / "firefox"
+# Where Firefox keeps its profiles, depending on how it was installed.
+FIREFOX_ROOTS = (
+	# .deb package or tarball
+	Path.home() / ".mozilla" / "firefox",
+	# XDG layout used by recent Firefox versions for new installs
+	Path.home() / ".config" / "mozilla" / "firefox",
+	# snap (Ubuntu's default)
+	Path.home() / "snap" / "firefox" / "common" / ".mozilla" / "firefox",
+	# Flatpak
+	Path.home() / ".var" / "app" / "org.mozilla.firefox" / ".mozilla" / "firefox",
+)
 COOKIE_NAME = "sessionKey"
 COOKIE_HOSTS = ("claude.ai", ".claude.ai")
 
@@ -20,27 +30,11 @@ class CookieError(RuntimeError):
 	"""The session cookie could not be found or read."""
 
 
-def find_profile(explicit_profile: str | None = None) -> Path:
-	"""Return the Firefox profile directory to use."""
-	if explicit_profile:
-		profile_dir = FIREFOX_ROOT / explicit_profile
-		if not profile_dir.is_dir():
-			# Also accept an absolute path.
-			profile_dir = Path(explicit_profile).expanduser()
-		if not profile_dir.is_dir():
-			raise CookieError(
-				_("Firefox profile not found: {profile}").format(profile=explicit_profile)
-			)
-		return profile_dir
-
-	profiles_ini = FIREFOX_ROOT / "profiles.ini"
+def _default_profile(root: Path) -> Path | None:
+	"""Default profile listed in ``root/profiles.ini``, if any."""
+	profiles_ini = root / "profiles.ini"
 	if not profiles_ini.is_file():
-		raise CookieError(
-			_(
-				"profiles.ini not found ({path}). Is Firefox installed and has "
-				"it been started at least once?"
-			).format(path=profiles_ini)
-		)
+		return None
 
 	parser = configparser.ConfigParser()
 	parser.read(profiles_ini, encoding="utf-8")
@@ -50,19 +44,59 @@ def find_profile(explicit_profile: str | None = None) -> Path:
 		if section.startswith("Profile") and parser.getboolean(
 			section, "Default", fallback=False
 		):
-			return FIREFOX_ROOT / parser.get(section, "Path")
+			return root / parser.get(section, "Path")
 
 	# 2) The [Install*] section pointing at the current default profile.
 	for section in parser.sections():
 		if section.startswith("Install") and parser.has_option(section, "Default"):
-			return FIREFOX_ROOT / parser.get(section, "Default")
+			return root / parser.get(section, "Default")
 
 	# 3) Fallback: first listed profile.
 	for section in parser.sections():
 		if section.startswith("Profile") and parser.has_option(section, "Path"):
-			return FIREFOX_ROOT / parser.get(section, "Path")
+			return root / parser.get(section, "Path")
 
-	raise CookieError(_("No Firefox profile found in profiles.ini."))
+	return None
+
+
+def _cookie_db_mtime(profile_dir: Path) -> float:
+	try:
+		return (profile_dir / "cookies.sqlite").stat().st_mtime
+	except OSError:
+		return 0.0
+
+
+def find_profile(
+	explicit_profile: str | None = None, roots: tuple[Path, ...] = FIREFOX_ROOTS
+) -> Path:
+	"""Return the Firefox profile directory to use.
+
+	Without an explicit profile, the default profile of every Firefox
+	installation found is considered, and the one whose cookie database was
+	written most recently wins — so a leftover ~/.mozilla from a previous
+	.deb install does not shadow the snap actually in use.
+	"""
+	if explicit_profile:
+		for root in roots:
+			if (root / explicit_profile).is_dir():
+				return root / explicit_profile
+		# Also accept an absolute path.
+		profile_dir = Path(explicit_profile).expanduser()
+		if not profile_dir.is_dir():
+			raise CookieError(
+				_("Firefox profile not found: {profile}").format(profile=explicit_profile)
+			)
+		return profile_dir
+
+	candidates = [profile for root in roots if (profile := _default_profile(root))]
+	if not candidates:
+		raise CookieError(
+			_(
+				"No Firefox profile found. Is Firefox installed and has it "
+				"been started at least once?"
+			)
+		)
+	return max(candidates, key=_cookie_db_mtime)
 
 
 def copy_cookie_db(profile_dir: Path, dest_dir: Path) -> Path:
