@@ -14,8 +14,8 @@ Linux systray indicator (GNOME / KDE) showing your claude.ai plan usage:
 - the icon turns to a warning (≥ 75 %) or error (≥ 90 %) symbol as you get
   close to the limit.
 
-The interface is available in **English** and **French** (see
-[Language](#language)).
+The interface is available in **English, French, German, Spanish, Italian
+and Portuguese** (see [Language](#language)).
 
 > [!WARNING]
 > This tool relies on the **undocumented internal API** that the claude.ai
@@ -80,14 +80,17 @@ Created on first run at `~/.config/claude-usage-tray/config.toml`:
 ```toml
 poll_interval_seconds = 300   # refresh interval
 firefox_profile = ""          # empty = default Firefox profile
-language = ""                 # "en", "fr", or empty = system locale
+language = ""                 # "en", "fr", "de", "es", "it", "pt", or empty = system locale
 ```
 
 ### Language
 
 With `language = ""`, the language follows the usual locale variables
 (`LANGUAGE`, `LC_ALL`, `LC_MESSAGES`, `LANG`); unsupported languages fall back
-to English.
+to English. Portuguese follows Brazilian usage and is also used for `pt_PT`.
+The German, Spanish, Italian and Portuguese translations were written by
+Claude and have not been reviewed by native speakers yet: corrections are
+welcome.
 
 To add a language, create `claude_usage_tray/locales/<code>.py` (copy
 `fr.py`), add the code to `SUPPORTED_LANGUAGES` in `claude_usage_tray/i18n.py`,

@@ -23,7 +23,8 @@ poll_interval_seconds = 300
 # Leave empty to auto-detect the default profile.
 firefox_profile = ""
 
-# Interface language: "en", "fr", or empty to follow the system locale.
+# Interface language: "en", "fr", "de", "es", "it", "pt", or empty to follow
+# the system locale.
 language = ""
 """
 

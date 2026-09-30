@@ -14,7 +14,7 @@ claude_usage_tray/
 ├── cookie_reader.py  profiles.ini → cookies.sqlite → sessionKey
 ├── config.py         ~/.config/claude-usage-tray/config.toml
 ├── i18n.py           _(), set_language(), detect_language()
-└── locales/fr.py     French catalog (English is the source language)
+└── locales/*.py      fr, de, es, it, pt catalogs (English is the source language)
 packaging/*.in        autostart / systemd templates, filled by install.sh
 diag_usage.py         end-to-end diagnostic (cookie rows, Cloudflare, API)
 tests/                unittest, no network, no GTK
@@ -27,7 +27,7 @@ tests/                unittest, no network, no GTK
 - **i18n:** every user-facing string is English, wrapped in `_()` at use
   time (never at import time: the language is set in `main()` after the
   config is loaded). Use `str.format` placeholders, never f-strings inside
-  `_()`. Add the French translation to `locales/fr.py`;
+  `_()`. Add the translation to every `locales/*.py` catalog;
   `tests/test_i18n.py` fails on missing/stale entries or placeholder
   mismatches. Strings translated indirectly (like `tray.WEEKDAYS`) must be
   listed in `INDIRECT_TUPLES` in that test.

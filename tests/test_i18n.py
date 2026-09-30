@@ -76,9 +76,11 @@ class LanguageSelectionTest(unittest.TestCase):
 	def test_detect_language(self) -> None:
 		cases = [
 			({"LANG": "fr_BE.UTF-8"}, "fr"),
-			({"LANGUAGE": "de_DE:fr_FR:en", "LANG": "de_DE.UTF-8"}, "fr"),
+			({"LANG": "pt_BR.UTF-8"}, "pt"),
+			({"LC_MESSAGES": "de_AT.UTF-8"}, "de"),
+			({"LANGUAGE": "nl_NL:fr_FR:en", "LANG": "nl_NL.UTF-8"}, "fr"),
 			({"LC_ALL": "C", "LANG": "fr_FR.UTF-8"}, "en"),
-			({"LANG": "de_DE.UTF-8"}, "en"),
+			({"LANG": "nl_NL.UTF-8"}, "en"),
 			({}, "en"),
 		]
 		for env, expected in cases:
